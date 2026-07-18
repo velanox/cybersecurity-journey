@@ -1,4 +1,4 @@
-password = input()
+password = input("enter your password:")
 special_characters = "!@#$%^&*()_-+=<>?/\\|{}[]"
 score = 0
 has_upper = False 
@@ -15,24 +15,40 @@ if len(password) >= 8:
           has_digit = True 
        if char in special_characters:
           has_special = True 
+    print("Password Analysis:")
+    print("------------------")
+    if has_lower:
+       score += 1
+       print("✔ Lowercase")
+    else:
+        print("✘ Lowercase")
+    if has_upper:
+       score += 1
+       print("✔ Uppercase")
+    else:
+       print("✘ Uppercase")
+    if has_digit:
+       score += 1
+       print("✔ Number")
+    else:
+       print("✘ Number")
+    if has_special:
+       score += 1
+       print("✔ Special character")
+    else:
+       print("✘ Special character")
+    print()
+    print("score:",score,"/4")
+    print()
+    if score<= 2:
+       print("weak password")
+    elif score== 3:
+       print("good password")
+    else:
+       print("Strong password")
 else:
-    print("Add at least one number.")
-if has_lower == True:
-   score = int(score+1)
-if has_upper == True:
-   score = int(score+1)
-if has_digit == True:
-   score = int(score+1)
-if has_special == True:
-   score = int(score+1)
-if int(score)<= 2:
-   print("weak password")
-if int(score)== 3:
-   print("good password")
-if int(score) == 4:
-   print("Strong password")
-if int(score) == 5:
-   print("very strong password")
+    print("password is too short!")
+
 
 
         
