@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Settings — CyberToolkit{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="eyebrow">Settings</div>
+  <h1>App <span>settings</span></h1>
+  <p class="lead">Configuration options will live here.</p>
+{% endblock %}

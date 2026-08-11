@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Hash Cracker — CyberToolkit{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hash_cracker.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="eyebrow">Hash Cracker</div>
+  <h1>Identify and <span>crack hashes</span></h1>
+  <p class="lead">Identify common hash types and attempt to recover the original value. Coming soon.</p>
+{% endblock %}

@@ -1,0 +1,97 @@
+/* ==========================================================================
+   MODULE GRID — one card per tool, home page only
+   ========================================================================== */
+
+.module-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.module-card{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--ink-800);
+  background-color: var(--ink-900);
+  text-decoration: none;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.module-card:hover{
+  border-color: rgba(170, 182, 201, 0.28);
+  background-color: var(--ink-850);
+  transform: translateY(-2px);
+}
+
+.module-card__icon{
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--ink-950);
+  border: 1px solid var(--ink-800);
+  color: var(--text-mid);
+}
+
+.module-card__icon svg{ width: 17px; height: 17px; }
+
+.module-card__body{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.module-card__title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-hi);
+}
+
+.module-card__desc{
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-low);
+}
+
+.module-card__foot{
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.module-card__cta{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--amber);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.module-card:hover .module-card__cta{
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.module-card--active{
+  border-color: rgba(227, 163, 76, 0.3);
+  background-image: radial-gradient(rgba(227,163,76,0.16) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+.module-card--active .module-card__icon{
+  color: var(--amber);
+  border-color: rgba(227,163,76,0.35);
+}
+
+.module-card--active:hover{
+  border-color: var(--amber);
+}

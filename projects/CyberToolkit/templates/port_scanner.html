@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Port Scanner — CyberToolkit{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/port_scanner.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="eyebrow">Port Scanner</div>
+  <h1>Scan a <span>target host</span></h1>
+  <p class="lead">Enter a target and a port range, then start the scan.</p>
+
+  <div class="scan-panel">
+
+    <form id="scan-form" method="POST" action="{{ url_for('port_scanner') }}">
+
+      <div class="field">
+        <label for="target">Target</label>
+        <input type="text" id="target" name="target" placeholder="example.com or 192.168.1.1" autocomplete="off" required>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="start_port">Start Port</label>
+          <input type="number" id="start_port" name="start_port" value="1" min="1" max="65535" required>
+        </div>
+
+        <div class="field">
+          <label for="end_port">End Port</label>
+          <input type="number" id="end_port" name="end_port" value="1024" min="1" max="65535" required>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="timeout">Timeout <span class="field__unit">(s)</span></label>
+          <input type="number" id="timeout" name="timeout" value="0.5" min="0.1" step="0.1" required>
+        </div>
+
+        <div class="field">
+          <label for="threads">Threads</label>
+          <input type="number" id="threads" name="threads" value="100" min="1" max="1000" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-scan">Scan</button>
+
+    </form>
+
+  </div>
+
+  {# ---------- Server-rendered fallback: shown when JS is off/failed ---------- #}
+  {% if error %}
+    <div class="alert-error">{{ error }}</div>
+  {% endif %}
+
+  {% if open_ports is not none %}
+    <div class="results">
+      <div class="results__head">
+        <span class="results__title">Open Ports</span>
+        <span class="results__meta">
+          {{ open_ports|length }} open · {{ duration }}s
+        </span>
+      </div>
+
+      {% if open_ports %}
+        <table class="results__table">
+          <thead>
+            <tr><th>Port</th><th>Status</th><th>Name</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            {% for r in open_ports %}
+              <tr>
+                <td class="mono">{{ r.port }}</td>
+                <td><span class="status-open">open</span></td>
+                <td class="mono">{{ r.name or "—" }}</td>
+                <td class="results__desc">{{ r.description or "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="results__empty">No open ports found in that range.</p>
+      {% endif %}
+    </div>
+
+    {% if known_ports %}
+      <div class="results">
+        <div class="results__head">
+          <span class="results__title">Well-known ports checked</span>
+          <span class="results__meta">{{ known_ports|length }} recognized</span>
+        </div>
+        <table class="results__table">
+          <thead>
+            <tr><th>Port</th><th>Status</th><th>Name</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            {% for r in known_ports %}
+              <tr>
+                <td class="mono">{{ r.port }}</td>
+                <td>
+                  {% if r.status == "open" %}
+                    <span class="status-open">open</span>
+                  {% elif r.status == "closed" %}
+                    <span class="status-closed">closed</span>
+                  {% else %}
+                    <span class="status-closed">{{ r.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="mono">{{ r.name }}</td>
+                <td class="results__desc">{{ r.description }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {# ---------- JS target: injected into here when JS is on ---------- #}
+  <div id="scan-results"></div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/port_scanner.js') }}"></script>
+{% endblock %}

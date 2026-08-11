@@ -1,0 +1,234 @@
+/* ==========================================================================
+   APP SHELL — sidebar + main content
+   ========================================================================== */
+
+.app{
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar{
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  border-right: 1px solid var(--ink-800);
+  background: rgba(7, 11, 19, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.sidebar__brand{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-hi);
+  padding: 0 10px;
+  margin-bottom: 28px;
+}
+
+.sidebar__brand-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px 1px var(--amber-dim);
+}
+
+.nav{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav__group-label{
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-low);
+  padding: 18px 10px 6px;
+}
+
+.nav__item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  font-size: 14px;
+  color: var(--text-mid);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.nav__item:hover{
+  background: var(--ink-900);
+  color: var(--text-hi);
+}
+
+.nav__item--active{
+  background: var(--amber-dim);
+  color: var(--amber);
+  border-left-color: var(--amber);
+}
+
+.nav__item--active:hover{
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.nav__item--settings{
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink-800);
+  border-radius: 0;
+}
+
+.nav__icon{
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.main{
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Shared page header (used on every page) ---------- */
+
+.shell{
+  position: relative;
+  z-index: 2;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 80px 32px 64px;
+}
+
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.eyebrow::before{
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px 1px var(--teal);
+}
+
+h1{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(30px, 4.5vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-hi);
+  margin-bottom: 16px;
+}
+
+h1 span{ color: var(--amber); }
+
+p.lead{
+  font-size: 16px;
+  line-height: 1.65;
+  max-width: 56ch;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+}
+
+/* ---------- Badges (reusable status pill) ---------- */
+
+.badge{
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  padding: 3px 9px;
+  border-radius: 100px;
+  border: 1px solid var(--ink-800);
+}
+
+.badge--soon{ color: var(--text-low); }
+
+.badge--progress{
+  color: var(--amber);
+  border-color: rgba(227,163,76,0.35);
+  background: var(--amber-dim);
+}
+
+/* ==========================================================================
+   RESPONSIVE — sidebar collapses to a top bar on small screens
+   ========================================================================== */
+
+@media (max-width: 760px){
+  .app{ flex-direction: column; }
+
+  .sidebar{
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--ink-800);
+  }
+
+  .sidebar__brand{ margin-bottom: 0; margin-right: 8px; }
+  .nav{ flex-direction: row; }
+  .nav__group-label{ display: none; }
+  .nav__item--settings{ margin-top: 0; padding-top: 9px; border-top: none; border-left: 1px solid var(--ink-800); border-radius: 0; margin-left: 4px; padding-left: 14px; }
+
+  .shell{ padding: 40px 20px 48px; }
+}
+/* ==========================================================================
+   TOAST — brief notification, top-right, used by base.js
+   ========================================================================== */
+
+.toast{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  color: var(--text-hi);
+  background: var(--ink-900);
+  border: 1px solid var(--ink-800);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.toast--visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast--error{
+  border-color: rgba(226, 86, 79, 0.4);
+  color: #f2a29d;
+}
+/* -- available/finished module badge -- */
+.badge--available{
+  color: var(--teal);
+  border-color: rgba(55, 214, 196, 0.35);
+  background: var(--teal-dim);
+}

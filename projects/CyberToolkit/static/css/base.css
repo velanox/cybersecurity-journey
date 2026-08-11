@@ -1,0 +1,46 @@
+/* ==========================================================================
+   CYBERTOOLKIT — BASE TOKENS
+   ========================================================================== */
+:root{
+  --ink-950: #070b13;
+  --ink-900: #0b111c;
+  --ink-850: #0e1522;
+  --ink-800: #121a29;
+  --grid-line: rgba(120, 150, 195, 0.09);
+  --grid-line-strong: rgba(140, 170, 215, 0.16);
+
+  --amber: #e3a34c;
+  --amber-dim: rgba(227, 163, 76, 0.15);
+  --teal: #37d6c4;
+  --teal-dim: rgba(55, 214, 196, 0.14);
+  --danger: #e2564f;
+
+  --text-hi: #edf1f7;
+  --text-mid: #aab6c9;
+  --text-low: #5f6c81;
+
+  --sidebar-w: 240px;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+*{ box-sizing: border-box; margin:0; padding:0; }
+
+html, body{ height: 100%; }
+
+body{
+  font-family: var(--font-body);
+  color: var(--text-mid);
+  overflow-x: hidden;
+
+  background-color: var(--ink-950);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(148,168,199,0.05), transparent 65%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 64px 64px, 64px 64px;
+  background-position: 0 0, 0 0, 0 0;
+  background-attachment: fixed;
+}

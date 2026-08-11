@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}DNS Lookup — CyberToolkit{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dns.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="eyebrow">DNS Lookup</div>
+  <h1>Resolve <span>DNS records</span></h1>
+  <p class="lead">Look up A, MX, TXT and NS records for any domain. Coming soon.</p>
+{% endblock %}
