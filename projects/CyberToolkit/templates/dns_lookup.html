@@ -8,5 +8,89 @@
 {% block content %}
   <div class="eyebrow">DNS Lookup</div>
   <h1>Resolve <span>DNS records</span></h1>
-  <p class="lead">Look up A, MX, TXT and NS records for any domain. Coming soon.</p>
+  <p class="lead">Enter a domain and pick which record types to resolve.</p>
+
+  <div class="lookup-panel">
+
+    <form id="dns-form" method="POST" action="{{ url_for('dns_lookup') }}">
+
+      <div class="field">
+        <label for="domain">Domain</label>
+        <input type="text" id="domain" name="domain" placeholder="example.com" autocomplete="off" required>
+      </div>
+
+      <div class="field">
+        <label>Record Types</label>
+        <div class="checkbox-group">
+          {% for rt in supported_types %}
+            <label class="checkbox">
+              <input type="checkbox" name="record_types" value="{{ rt }}" checked>
+              <span>{{ rt }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="timeout">Timeout <span class="field__unit">(s)</span></label>
+        <input type="number" id="timeout" name="timeout" value="5" min="0.5" step="0.5" required>
+      </div>
+
+      <button type="submit" class="btn-lookup">Lookup</button>
+
+    </form>
+
+  </div>
+
+  {# ---------- Server-rendered fallback: shown when JS is off/failed ---------- #}
+  {% if error %}
+    <div class="alert-error">{{ error }}</div>
+  {% endif %}
+
+  {% if results is not none %}
+    <div class="results">
+      <div class="results__head">
+        <span class="results__title">Results for {{ domain }}</span>
+        <span class="results__meta">{{ found_count }} record type(s) found · {{ duration }}s</span>
+      </div>
+
+      <div class="results__body">
+        {% for record_type, r in results.items() %}
+          <div class="record-block">
+            <div class="record-block__head">
+              <span class="record-block__type">{{ record_type }}</span>
+              {% if r.status == "found" %}
+                <span class="status-open">found</span>
+              {% elif r.status == "not_found" %}
+                <span class="status-closed">no record</span>
+              {% elif r.status == "nxdomain" %}
+                <span class="status-error">nxdomain</span>
+              {% elif r.status == "timeout" %}
+                <span class="status-error">timeout</span>
+              {% else %}
+                <span class="status-error">error</span>
+              {% endif %}
+            </div>
+
+            {% if r.records %}
+              <ul class="record-block__list">
+                {% for rec in r.records %}
+                  <li class="mono">{{ rec }}</li>
+                {% endfor %}
+              </ul>
+            {% elif r.error %}
+              <p class="record-block__error">{{ r.error }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {# ---------- JS target: injected into here when JS is on ---------- #}
+  <div id="dns-results"></div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/dns.js') }}"></script>
 {% endblock %}

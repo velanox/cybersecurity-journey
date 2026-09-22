@@ -1,8 +1,77 @@
 {% extends "base.html" %}
 {% block title %}WHOIS — CyberToolkit{% endblock %}
 
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/whois.css') }}">
+{% endblock %}
+
 {% block content %}
   <div class="eyebrow">WHOIS</div>
   <h1>Domain <span>ownership lookup</span></h1>
-  <p class="lead">Look up domain registration and ownership records. Coming soon.</p>
+  <p class="lead">Enter a domain to look up its registrar, dates, status, and nameservers.</p>
+
+  <div class="whois-panel">
+    <form id="whois-form" method="POST" action="{{ url_for('whois') }}">
+      <div class="field">
+        <label for="domain">Domain</label>
+        <input type="text" id="domain" name="domain" placeholder="example.com"
+               value="{{ domain or '' }}" autocomplete="off" spellcheck="false" required>
+      </div>
+
+      <div class="hc-actions">
+        <button type="submit" class="btn-primary" id="whois-submit-btn">Look Up</button>
+        <button type="button" class="btn-secondary" id="whois-new-btn" hidden>New Search</button>
+      </div>
+    </form>
+  </div>
+
+  {# ---------- Server-rendered fallback: shown when JS is off/failed ---------- #}
+  {% if error %}
+    <div class="alert-error">{{ error }}</div>
+  {% endif %}
+
+  {% if result %}
+    {% if result.error %}
+      <div class="alert-error">{{ result.error }}</div>
+    {% elif result.not_found %}
+      <div class="results">
+        <div class="results__head">
+          <span class="results__title">{{ result.domain }}</span>
+          <span class="results__meta">not registered</span>
+        </div>
+        <p class="results__empty">No WHOIS record found — this domain doesn't appear to be registered.</p>
+      </div>
+    {% else %}
+      <div class="results">
+        <div class="results__head">
+          <span class="results__title">{{ result.domain }}</span>
+        </div>
+        <table class="results__table">
+          <tbody>
+            <tr><td class="mono">Registrar</td><td class="mono">{{ result.registrar or "—" }}</td></tr>
+            <tr><td class="mono">Created</td><td class="mono">{{ result.created or "—" }}</td></tr>
+            <tr><td class="mono">Updated</td><td class="mono">{{ result.updated or "—" }}</td></tr>
+            <tr><td class="mono">Expires</td><td class="mono">{{ result.expires or "—" }}</td></tr>
+            <tr><td class="mono">Status</td><td class="mono">{{ result.status|join(", ") if result.status else "—" }}</td></tr>
+            <tr><td class="mono">Nameservers</td><td class="mono">{{ result.nameservers|join(", ") if result.nameservers else "—" }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {% if result.raw %}
+        <details class="whois-raw">
+          <summary>Raw WHOIS response</summary>
+          <pre class="whois-raw__content">{{ result.raw }}</pre>
+        </details>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+  {# ---------- JS targets: injected into here when JS is on ---------- #}
+  <div id="whois-loading" hidden><p class="hc-note">Looking up…</p></div>
+  <div id="whois-results"></div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/whois.js') }}"></script>
 {% endblock %}

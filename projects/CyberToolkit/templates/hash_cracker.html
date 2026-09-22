@@ -8,5 +8,226 @@
 {% block content %}
   <div class="eyebrow">Hash Cracker</div>
   <h1>Identify and <span>crack hashes</span></h1>
-  <p class="lead">Identify common hash types and attempt to recover the original value. Coming soon.</p>
+  <p class="lead">Analyze a hash, pick a recovery strategy, and watch it run live. Requires JavaScript.</p>
+
+  <noscript>
+    <div class="alert-error">This tool needs JavaScript enabled — live progress, pause/stop, and the crack engine itself all run client-side against the Flask API.</div>
+  </noscript>
+
+  <div id="hc-app" data-status="idle">
+
+    <!-- ===================== HASH INPUT ===================== -->
+    <div class="hc-panel">
+      <div class="hc-panel__title">Hash</div>
+
+      <div class="field">
+        <input type="text" id="hc-hash-input" placeholder="5f4dcc3b5aa765d61d8327deb882cf99" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="hc-actions">
+        <button type="button" id="hc-analyze-btn" class="btn-primary">Analyze Hash</button>
+        <button type="button" id="hc-clear-btn" class="btn-secondary">Clear</button>
+      </div>
+
+      <div id="hc-input-error"></div>
+
+      <div class="hc-testcases">
+        <span class="hc-testcases__label">Lab test cases:</span>
+        <button type="button" class="hc-testcase-btn" data-hash="5f4dcc3b5aa765d61d8327deb882cf99">MD5("password")</button>
+        <button type="button" class="hc-testcase-btn" data-hash="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8">SHA1("password")</button>
+        <button type="button" class="hc-testcase-btn" data-hash="5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d">SHA256("password")</button>
+      </div>
+    </div>
+
+    <!-- ===================== ANALYSIS ===================== -->
+    <div class="hc-panel" id="hc-analysis-panel" hidden>
+      <div class="hc-panel__title">Analysis</div>
+      <table class="results__table">
+        <tbody id="hc-analysis-body"></tbody>
+      </table>
+    </div>
+
+    <!-- ===================== STRATEGY ===================== -->
+    <div class="hc-panel" id="hc-strategy-panel" hidden>
+      <div class="hc-panel__title">Recovery Method</div>
+
+      <div class="hc-strategy-picker">
+        <label class="hc-strategy-option">
+          <input type="radio" name="strategy" value="dictionary" checked>
+          <span>Dictionary</span>
+        </label>
+        <label class="hc-strategy-option">
+          <input type="radio" name="strategy" value="brute_force">
+          <span>Brute Force</span>
+        </label>
+        <label class="hc-strategy-option">
+          <input type="radio" name="strategy" value="rainbow">
+          <span>Rainbow Table</span>
+        </label>
+        <label class="hc-strategy-option">
+          <input type="radio" name="strategy" value="automatic">
+          <span>Automatic</span>
+        </label>
+      </div>
+
+      <!-- ---- Dictionary ---- -->
+      <div class="hc-substrategy" id="hc-sub-dictionary">
+        <div class="field">
+          <label for="hc-wordlist-select">Wordlist</label>
+          <div class="hc-wordlist-row">
+            <select id="hc-wordlist-select"></select>
+            <label class="btn-secondary hc-browse-btn">
+              Browse
+              <input type="file" id="hc-wordlist-upload" accept=".txt" hidden>
+            </label>
+          </div>
+          <p class="hc-note" id="hc-wordlist-caption"></p>
+        </div>
+
+        <div class="field">
+          <label>Transformations <span class="field__unit">(optional)</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-pill"><input type="checkbox" value="capitalize"> Capitalize</label>
+            <label class="checkbox-pill"><input type="checkbox" value="upper"> UPPER</label>
+            <label class="checkbox-pill"><input type="checkbox" value="append_1"> +1</label>
+            <label class="checkbox-pill"><input type="checkbox" value="append_123"> +123</label>
+            <label class="checkbox-pill"><input type="checkbox" value="leet"> l33t</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Brute force ---- -->
+      <div class="hc-substrategy" id="hc-sub-brute_force" hidden>
+        <div class="field">
+          <label>Character set</label>
+          <div class="checkbox-group">
+            <label class="checkbox-pill"><input type="checkbox" id="hc-bf-lower" checked> lowercase</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-bf-upper" checked> uppercase</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-bf-numbers" checked> numbers</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-bf-symbols"> symbols</label>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="hc-bf-min">Minimum length</label>
+            <input type="number" id="hc-bf-min" value="1" min="1">
+          </div>
+          <div class="field">
+            <label for="hc-bf-max">Maximum length</label>
+            <input type="number" id="hc-bf-max" value="4" min="1">
+          </div>
+        </div>
+        <p class="hc-note">The gap between min and max can't exceed 8 — e.g. 10–11 is fine, 1–15 isn't. If you know the length, narrow it: it's cheaper.</p>
+
+        <div id="hc-bf-feasibility"></div>
+      </div>
+
+      <!-- ---- Rainbow ---- -->
+      <div class="hc-substrategy" id="hc-sub-rainbow" hidden>
+        <div id="hc-rainbow-compat"></div>
+
+        <div class="field">
+          <label>Character set</label>
+          <div class="checkbox-group">
+            <label class="checkbox-pill"><input type="checkbox" id="hc-rb-lower" checked> lowercase</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-rb-upper" checked> uppercase</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-rb-numbers" checked> numbers</label>
+            <label class="checkbox-pill"><input type="checkbox" id="hc-rb-symbols"> symbols</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="hc-rb-length">Length <span class="field__unit">(fixed — a rainbow table targets one exact length)</span></label>
+          <input type="number" id="hc-rb-length" value="4" min="1">
+        </div>
+
+        <div id="hc-rb-preview"></div>
+      </div>
+
+      <!-- ---- Automatic ---- -->
+      <div class="hc-substrategy" id="hc-sub-automatic" hidden>
+        <p class="hc-note">Runs the built-in wordlist first, then falls back to a short brute-force (lowercase + numbers, 1–4 chars) if nothing is found. Each step is logged below as it runs.</p>
+      </div>
+
+      <!-- ---- Salt (hidden for rainbow/automatic) ---- -->
+      <div class="hc-substrategy" id="hc-salt-block">
+        <label class="hc-salt-toggle">
+          <input type="checkbox" id="hc-salt-enable">
+          This hash uses a salt (lab format)
+        </label>
+
+        <div id="hc-salt-fields" hidden>
+          <div class="field-row">
+            <div class="field">
+              <label for="hc-salt-value">Salt</label>
+              <input type="text" id="hc-salt-value" placeholder="e.g. a1b2c3">
+            </div>
+            <div class="field">
+              <label>Order</label>
+              <div class="checkbox-group">
+                <label class="checkbox-pill"><input type="radio" name="salt-order" value="suffix" checked> candidate + salt</label>
+                <label class="checkbox-pill"><input type="radio" name="salt-order" value="prefix"> salt + candidate</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hc-actions">
+        <button type="button" id="hc-start-btn" class="btn-primary">Start</button>
+      </div>
+
+      <div id="hc-strategy-error"></div>
+
+      <!-- ---- Confirmation for >24h estimates ---- -->
+      <div class="hc-confirm-block" id="hc-confirm-block" hidden>
+        <p id="hc-confirm-text"></p>
+        <div class="hc-actions">
+          <button type="button" id="hc-confirm-yes" class="btn-danger">Continue anyway</button>
+          <button type="button" id="hc-confirm-no" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== LIVE STATUS ===================== -->
+    <div class="hc-panel" id="hc-live-panel" hidden>
+      <div class="hc-panel__title">Hash Cracker — Live Status</div>
+
+      <div id="hc-auto-log" class="hc-auto-log" hidden></div>
+
+      <table class="results__table">
+        <tbody>
+          <tr><td class="mono">Status</td><td id="hc-live-status" class="hc-status-badge"></td></tr>
+          <tr><td class="mono">Algorithm</td><td class="mono" id="hc-live-algorithm"></td></tr>
+          <tr><td class="mono">Strategy</td><td class="mono" id="hc-live-strategy"></td></tr>
+          <tr id="hc-live-phase-row" hidden><td class="mono">Phase</td><td class="mono" id="hc-live-phase"></td></tr>
+          <tr><td class="mono">Candidates</td><td class="mono" id="hc-live-candidates"></td></tr>
+          <tr><td class="mono">Speed</td><td class="mono" id="hc-live-speed"></td></tr>
+          <tr><td class="mono">Elapsed</td><td class="mono" id="hc-live-elapsed"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="hc-progress">
+        <div class="hc-progress__bar" id="hc-progress-bar"></div>
+      </div>
+      <div class="hc-progress__label" id="hc-progress-label"></div>
+
+      <div class="hc-actions">
+        <button type="button" id="hc-pause-btn" class="btn-secondary">Pause</button>
+        <button type="button" id="hc-stop-btn" class="btn-danger">Stop</button>
+      </div>
+    </div>
+
+    <!-- ===================== RESULT ===================== -->
+    <div class="hc-panel" id="hc-result-panel" hidden>
+      <div class="hc-panel__title">Result</div>
+      <div id="hc-result-body"></div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/hash_cracker.js') }}"></script>
 {% endblock %}

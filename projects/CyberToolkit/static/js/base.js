@@ -22,6 +22,12 @@ function showToast(message, type = "info") {
  * Wrapper around fetch() that sends/expects JSON and throws a readable
  * error when the response isn't ok. Every page-specific JS file uses this
  * instead of calling fetch() directly.
+ *
+ * On a non-ok response, the thrown Error carries:
+ *   - err.status  — the HTTP status code
+ *   - err.payload — the full parsed JSON body, so callers can read extra
+ *                   fields beyond the message (e.g. "requires_confirmation"
+ *                   and "estimate" on a 422 from the hash cracker).
  */
 async function apiRequest(url, options = {}) {
   const response = await fetch(url, {
@@ -36,7 +42,10 @@ async function apiRequest(url, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    const err = new Error(data.error || `Request failed (${response.status})`);
+    err.status = response.status;
+    err.payload = data;
+    throw err;
   }
 
   return data;
@@ -47,4 +56,20 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+/**
+ * Puts a submit button into a "loading" state: disables it, swaps its
+ * label, and returns a function to restore it to normal.
+ */
+function setButtonLoading(button, loadingLabel = "Working…") {
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.dataset.originalLabel = originalLabel;
+  button.textContent = loadingLabel;
+
+  return function restore() {
+    button.disabled = false;
+    button.textContent = button.dataset.originalLabel || originalLabel;
+  };
 }
