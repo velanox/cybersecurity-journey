@@ -56,7 +56,7 @@ Password-Audit-Toolkit/
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/cybersecurity-journey.git
+git clone https://github.com/velanox/cybersecurity-journey.git
 ```
 
 Move into the project
