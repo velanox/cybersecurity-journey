@@ -136,7 +136,7 @@ Speaks the raw WHOIS protocol (plain text over TCP port 43) directly — resolve
 ## Installation
 
 ```bash
-git clone https://github.com/<velanox>/CyberToolkit.git
+git clone https://github.com/velanox/CyberToolkit.git
 
 cd CyberToolkit
 
